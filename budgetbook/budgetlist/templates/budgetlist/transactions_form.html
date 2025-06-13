@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{%  block content %}
+<div class="content">
+	<h3>収支入力</h3>
+	<div class="form">
+		<form action="{% url 'budgetlist:transactions_create' %}" method='POST'> <!--  budgetlist_appの中のtransactions_createというnameを呼び出せ -->
+			{% csrf_token %}
+			{% for field in form %}
+			<div>
+				{# --- ラベル、入力フィールド --- #}
+				{{ field.label }}
+				{{ field }}
+				{# --- 入力フィールドごとのエラーメッセージ（最初のエラーのみを表示） --- #}
+				{% if field.errors %}
+				<p class="error">{{ field.errors.0 }}</p>
+				{% endif %}
+			</div>
+			{% endfor %}
+			<input type="submit" value="登録" />
+		</form>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+<!doctype html>
+{% load static %}
+<html lang='ja'>
+<head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <title>Budget</title>
+    <!-- <link rel='stylesheet' type='text/css' href='{% static "bizcomu/css/main.css" %}' /> -->
+</head>
+<body>
+    <!-- <li><a href="/budgetlist/">Top</a></li> -->
+    <li><a href="/budgetlist/Transactions">収支入力</a></li>
+    <li><a href="/budgetlist/Category">カテゴリ入力</a></li>
+    <li><a href="/budgetlist/Payment">支払方法入力</a></li>
+    
+    {% block content %}{% endblock %}
+</body>
+</html>
