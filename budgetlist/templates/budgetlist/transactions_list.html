@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{%  block content %}
+<table>
+    {% for transaction in transactions_list %}
+    <tr>
+        <td>{{ transaction. }}</td>
+        <td>{{ transaction.name }}</td>
+        <td>{{ transaction.location }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<a href='/budgetlist/Transactions'>収支入力</a>
+<section>
+    <p><a href="javascript:history.back()">&lt; Back</a></p>
+</section>
+{% endblock %}
