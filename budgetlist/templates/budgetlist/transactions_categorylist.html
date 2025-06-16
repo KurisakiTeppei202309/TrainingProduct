@@ -1,7 +1,16 @@
 {% extends "base.html" %}
 {%  block content %}
 
-<h1>取引履歴</h1>
+<h1>カテゴリ別取引記録</h1>
+<h4>カテゴリ検索</h4>
+<form action='{% url 'budgetlist:transactions_list_category' %}' method='POST'>
+    {% csrf_token %}
+    カテゴリID:
+    <input type="text" name="category_id" /><br/><br/>
+    <input type="submit" value="検索" />
+</form>
+
+
 <table>
     <tr>
         <td>日付</td>
@@ -19,6 +28,6 @@
         <td>{{ transaction.note}}</td>
     </tr>
     {% endfor %}
-<li><a href="/budgetlist/Transactions_Categorylist/">カテゴリ別一覧</a></li>
-   
+    <a href="/budgetlist/Transactionslist/">一覧に戻る</a>
+
 {% endblock %}

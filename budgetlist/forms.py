@@ -1,11 +1,18 @@
 from django import forms
-from budgetlist.models import Transactions,Category,Payment
+from budgetlist.models import Transactions,Category,Types
+
 
 class TransactionsCreateForm(forms.ModelForm):
     class Meta:
         model = Transactions
-        fields = ('amount','category','payment','note')#'date'
+        fields = ('date','amount','category','types','note')
+        # widgets = {
+        #     'date':forms.DateTimeInput(format='%Y-%m-%d %H:%M：%S', attrs={'type': 'datetime-local'})
+        # }
 
+    def clean_date(self):
+        value = self.cleaned_data['date']
+        return value
 
     def clean_amount(self):
         value = self.cleaned_data['amount']
@@ -18,8 +25,8 @@ class TransactionsCreateForm(forms.ModelForm):
         value = self.cleaned_data['category']
         return value
     
-    def clean_payment(self):
-        value = self.cleaned_data['payment']
+    def clean_Types(self):
+        value = self.cleaned_data['types']
         return value
 
     def clean_note(self):
@@ -43,13 +50,14 @@ class CategoryCreateForm(forms.ModelForm):
         value = self.cleaned_data['category_type']
         return value
 
-class PaymentCreateForm(forms.ModelForm):
+class TypesCreateForm(forms.ModelForm):
     class Meta:
-        model = Payment
+        model = Types
         fields = ('name',)
 
     def clean_name (self):
         value = self.cleaned_data['name']
-        if Payment.objects.filter(name=value).exists():
+        if Types.objects.filter(name=value).exists():
             raise forms.ValidationError('この値はすでに存在します。')
         return value
+

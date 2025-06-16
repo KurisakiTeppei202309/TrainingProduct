@@ -20,5 +20,9 @@ from django.urls import path,include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path ('budgetlist/',include('budgetlist.urls')),
+    path ('accounts/',include('accounts.urls')),
+    path('accounts/',include('django.contrib.auth.urls')),#サインアップは自分で実装するため
+
+
     
 ]

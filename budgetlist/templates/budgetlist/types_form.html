@@ -3,7 +3,7 @@
 <div class="content">
 	<h3>支払方法入力</h3>
 	<div class="form">
-		<form action="{% url 'budgetlist:payment_create' %}" method='POST'> 
+		<form action="{% url 'budgetlist:types_create' %}" method='POST'> 
 			{% csrf_token %}
 			{% for field in form %}
 			<div>

@@ -3,7 +3,7 @@
 <div class="content">
 	<h3>収支入力</h3>
 	<div class="form">
-		<form action="{% url 'budgetlist:transactions_create' %}" method='POST'> <!--  budgetlist_appの中のtransactions_createというnameを呼び出せ -->
+		<form action="{% url 'budgetlist:transactions_create' %}" method='POST'> 
 			{% csrf_token %}
 			{% for field in form %}
 			<div>
@@ -19,5 +19,5 @@
 			<input type="submit" value="登録" />
 		</form>
 	</div>
-</div>
+
 {% endblock %}

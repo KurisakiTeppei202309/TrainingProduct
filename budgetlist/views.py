@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import generic
-from django.views.generic import View, TemplateView
-from budgetlist.models import Transactions,Category,Payment
-from budgetlist.forms import TransactionsCreateForm,CategoryCreateForm,PaymentCreateForm
+from django.views.generic import View, TemplateView,ListView
+from budgetlist.models import Transactions,Category,Types
+from budgetlist.forms import TransactionsCreateForm,CategoryCreateForm,TypesCreateForm
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
+@login_required
 def index(request):
     return render (request,'base.html')
 
@@ -27,22 +29,17 @@ class TransactionsCreate (View):
             return render(request, 'budgetlist/transactions_form.html', context)
 
         transactions = Transactions()
+        transactions.date = form.cleaned_data.get('date')
         transactions.amount = form.cleaned_data.get('amount')
-        form_category_name=form.cleaned_data.get('category')
-        category = Category.objects.get(name=form_category_name)
-        transactions.category = form_category_name
-
-        transactions.payment = form.cleaned_data.get('payment')
+        transactions.category = form.cleaned_data.get('category')
+        transactions.types = form.cleaned_data.get('types')
         transactions.note = form.cleaned_data.get('note')
         transactions.save()
         queryset = Transactions.objects.all().order_by('id')
-            # context = {
-            #     'transactions_list' : queryset,
-            #}
-        # except category.DoesNotExist:
-        #     raise Http500("category does not exist")
-        #     # return redirect(reverse('bizcomu:index'))
-        return render(request,'base.html')#context budgetlist/transactions_list.html
+        context = {
+                'transactions_list' : queryset,
+            }
+        return render(request,'budgetlist/transactions_list.html',context)
 
 class CategoryCreate(View):
     def get(self, request, *args, **kwargs):
@@ -68,32 +65,51 @@ class CategoryCreate(View):
         }
         return render(request, 'base.html', context)
 
-class PaymentCreate(View):
+class TypesCreate(View):
     def get(self, request, *args, **kwargs):
-        form =PaymentCreateForm()
+        form =TypesCreateForm()
         context = {
             'form' : form,
         }
-        return render(request, 'budgetlist/payment_form.html', context)
+        return render(request, 'budgetlist/types_form.html', context)
     def post(self, request, *args, **kwargs):
-        form = PaymentCreateForm(request.POST)
+        form = TypesCreateForm(request.POST)
         if not form.is_valid():
             context = {
                 'form' : form,
             }
-            return render(request, 'budgetlist/payment_form.html.html', context)
-        payment = Payment()
-        payment.name = form.cleaned_data.get('name')
-        payment.transactions_type = form.cleaned_data.get('transactions_type')
-        payment.save()
-        queryset = Payment.objects.all().order_by('id')
+            return render(request, 'budgetlist/types_form.html', context)
+        types = Types()
+        types.name = form.cleaned_data.get('name')
+        types.save()
+        queryset = Types.objects.all().order_by('id')
         context = {
-            'payment_list' : queryset,
+            'types_list' : queryset,
         }
         return render(request, 'base.html', context)
 
-class TransactionsList(TemplateView):
-    template_name = 'budgetlist/transactions_list.html'
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs) #親クラスの関数を取得
-        context['transactionslist'] = Transactionst.objects.all() #キーとバリューの追加
+class TransactionsList(ListView):
+    # template_name = 'budgetlist/transactions_list.html'
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs) #親クラスの関数を取得
+    #     context['transactionslist'] = Transactionst.objects.all() #キーとバリューの追加
+    model = Transactions 
+
+
+class Transaction_list_by_category(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'budgetlist/transactions_categorylist.html')
+
+    def post(self, request, *args, **kwargs):
+        # try:
+        category_id = int(self.request.POST.get('category_id'))
+        category = Transactions.objects.filter(category=category_id)
+        # except Department.DoesNotExist:
+        #     raise Http500("Department does not exist")
+        context = {
+            'transactions_list' : category,
+        }
+        return render(request, 'budgetlist/transactions_categorylist.html', context)
+
+
+    
