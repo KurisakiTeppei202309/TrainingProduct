@@ -2,17 +2,12 @@ from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views import generic
 from django.views.generic import View, TemplateView,ListView
-from budgetlist.models import Transactions,Category,Types
-from budgetlist.forms import TransactionsCreateForm,CategoryCreateForm,TypesCreateForm
-from django.contrib.auth.decorators import login_required
+from budgetlist.models import Transactions,Category,Types,Expense
+from budgetlist.forms import TransactionsCreateForm,CategoryCreateForm,TypesCreateForm,CategorySearchForm,ExpenseCreateForm,ExpenseSearchForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-# Create your views here.
-@login_required
-def index(request):
-    return render (request,'base.html')
-
-class TransactionsCreate (View):
+class TransactionsCreate (LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         form =TransactionsCreateForm()
         context = {
@@ -33,15 +28,17 @@ class TransactionsCreate (View):
         transactions.amount = form.cleaned_data.get('amount')
         transactions.category = form.cleaned_data.get('category')
         transactions.types = form.cleaned_data.get('types')
+        transactions.expense = form.cleaned_data.get('expense')
         transactions.note = form.cleaned_data.get('note')
+        transactions.user = request.user
         transactions.save()
-        queryset = Transactions.objects.all().order_by('id')
+        queryset = Transactions.objects.filter(user=self.request.user).order_by('date')
         context = {
                 'transactions_list' : queryset,
             }
         return render(request,'budgetlist/transactions_list.html',context)
 
-class CategoryCreate(View):
+class CategoryCreate(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         form = CategoryCreateForm()
         context = {
@@ -60,12 +57,14 @@ class CategoryCreate(View):
         category.category_type = form.cleaned_data.get('category_type')
         category.save()
         queryset = Category.objects.all().order_by('id')
+        transactions_form=TransactionsCreateForm()
         context = {
             'category_list' : queryset,
+            'form' : transactions_form,
         }
-        return render(request, 'base.html', context)
+        return render(request, 'budgetlist/transactions_form.html', context)
 
-class TypesCreate(View):
+class TypesCreate(LoginRequiredMixin,View):
     def get(self, request, *args, **kwargs):
         form =TypesCreateForm()
         context = {
@@ -83,33 +82,100 @@ class TypesCreate(View):
         types.name = form.cleaned_data.get('name')
         types.save()
         queryset = Types.objects.all().order_by('id')
+        transactions_form=TransactionsCreateForm()
+
         context = {
             'types_list' : queryset,
-        }
-        return render(request, 'base.html', context)
+            'form' : transactions_form,
 
-class TransactionsList(ListView):
-    # template_name = 'budgetlist/transactions_list.html'
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs) #親クラスの関数を取得
-    #     context['transactionslist'] = Transactionst.objects.all() #キーとバリューの追加
+        }
+        return render(request, 'budgetlist/transactions_form.html', context)
+
+
+class TransactionsList(LoginRequiredMixin,ListView):
     model = Transactions 
-
-
-class Transaction_list_by_category(View):
-    def get(self, request, *args, **kwargs):
-        return render(request, 'budgetlist/transactions_categorylist.html')
-
-    def post(self, request, *args, **kwargs):
-        # try:
-        category_id = int(self.request.POST.get('category_id'))
-        category = Transactions.objects.filter(category=category_id)
-        # except Department.DoesNotExist:
-        #     raise Http500("Department does not exist")
-        context = {
-            'transactions_list' : category,
-        }
-        return render(request, 'budgetlist/transactions_categorylist.html', context)
-
+    template_name = "transactions_list.html"
+    context_object_name = "transactions_list"
 
     
+
+    def get_queryset(self):
+        return Transactions.objects.filter(user=self.request.user).order_by("date")
+
+
+
+class Transaction_list_by_category(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        form = CategorySearchForm()
+
+        context = {
+            'form' : form,
+        }
+        return render(request, 'budgetlist/transactions_categorylist.html', context)
+    def post(self, request, *args, **kwargs):
+        form = CategorySearchForm(request.POST)
+        if not form.is_valid():
+            context = {
+                'form' : form,
+            }
+            return render(request, 'budgetlist/transactions_categorylist.html', context)
+        category_name = form.cleaned_data.get('name')
+        category = Category.objects.filter(name=category_name).first()
+        transactions_category= Transactions.objects.filter(category=category.id,user=self.request.user).order_by("date")
+        context = {
+            'transactions_list' : transactions_category,
+            'form': form, 
+        }
+
+        return render(request, 'budgetlist/transactions_categorylist.html', context)
+
+class ExpenseCreate(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        form =ExpenseCreateForm()
+        context = {
+            'form' : form,
+        }
+        return render(request, 'budgetlist/expense_form.html', context)
+    def post(self, request, *args, **kwargs):
+        form = ExpenseCreateForm(request.POST)
+        if not form.is_valid():
+            context = {
+                'form' : form,
+            }
+            return render(request, 'budgetlist/expense_form.html', context)
+        expense = Expense()
+        expense.name = form.cleaned_data.get('name')
+        expense.save()
+        queryset = Expense.objects.all().order_by('id')
+        transactions_form=TransactionsCreateForm()
+        context = {
+            'expense_list' : queryset,
+            'form' : transactions_form,
+
+        }
+        return render(request, 'budgetlist/transactions_form.html', context)
+    
+class Transaction_list_by_expense(LoginRequiredMixin,View):
+    def get(self, request, *args, **kwargs):
+        form = ExpenseSearchForm()
+
+        context = {
+            'form' : form,
+        }
+        return render(request, 'budgetlist/transactions_expenselist.html', context)
+    def post(self, request, *args, **kwargs):
+        form = ExpenseSearchForm(request.POST)
+        if not form.is_valid():
+            context = {
+                'form' : form,
+            }
+            return render(request, 'budgetlist/transactions_expenselist.html', context)
+        expense_name = form.cleaned_data.get('name')
+        expense = Expense.objects.filter(name=expense_name).first()
+        transactions_expense= Transactions.objects.filter(expense=expense.id,user=self.request.user).order_by("date")
+        context = {
+            'transactions_list' : transactions_expense,
+            'form': form, 
+        }
+
+        return render(request, 'budgetlist/transactions_expenselist.html', context)

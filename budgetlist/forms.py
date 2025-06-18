@@ -1,11 +1,11 @@
 from django import forms
-from budgetlist.models import Transactions,Category,Types
+from budgetlist.models import Transactions,Category,Types,Expense
 
 
 class TransactionsCreateForm(forms.ModelForm):
     class Meta:
         model = Transactions
-        fields = ('date','amount','category','types','note')
+        fields = ('date','amount','category','types','expense','note')
         # widgets = {
         #     'date':forms.DateTimeInput(format='%Y-%m-%d %H:%M：%S', attrs={'type': 'datetime-local'})
         # }
@@ -28,6 +28,11 @@ class TransactionsCreateForm(forms.ModelForm):
     def clean_Types(self):
         value = self.cleaned_data['types']
         return value
+    
+    def clean_Expense(self):
+        value = self.cleaned_data['expense']
+        return value
+    
 
     def clean_note(self):
         value = self.cleaned_data['note']
@@ -61,3 +66,37 @@ class TypesCreateForm(forms.ModelForm):
             raise forms.ValidationError('この値はすでに存在します。')
         return value
 
+class CategorySearchForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ('name',)
+
+    def clean_name (self):
+        value = self.cleaned_data['name']
+        if not Category.objects.filter(name=value).exists():
+            raise forms.ValidationError('入力したカテゴリは登録されていません。')
+        return value
+
+
+class ExpenseCreateForm(forms.ModelForm):
+    class Meta:
+        model = Expense
+        fields = ('name',)
+
+
+    def clean_name (self):
+        value = self.cleaned_data['name']
+        if Category.objects.filter(name=value).exists():
+            raise forms.ValidationError('入力したカテゴリはすでに登録済みです。')
+        return value
+
+class ExpenseSearchForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ('name',)
+
+    def clean_name (self):
+        value = self.cleaned_data['name']
+        if not Expense.objects.filter(name=value).exists():
+            raise forms.ValidationError('入力した支払場所は登録されていません。')
+        return value

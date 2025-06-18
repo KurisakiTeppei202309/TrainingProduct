@@ -1,10 +1,10 @@
-{% load staticfiles %}
+{% load static %}
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <!-- <link href="{% static 'css/style.css' %}" rel="stylesheet"> -->
+        <link href="{% static 'css/style.css' %}" rel="stylesheet">
     </head>
 <body>
 <div class="container">
@@ -12,10 +12,12 @@
         <nav>
             
                 {% if user.is_authenticated %}
+                <li><a href="/budgetlist">収支登録</a></li>
+                <li><a href="/budgetlist/Category">カテゴリ登録</a></li>
+                <li><a href="/budgetlist/Type">受取・支払方法登録</a></li>
+                <li><a href="/budgetlist/Expense">支払場所登録</a></li>
+                <li><a href="/budgetlist/Transactionslist">取引履歴</a></li>
                 <li><a href="{% url 'logout' %}" class="logout">ログアウト</a></li>
-                <li><a href="/budgetlist">収支入力</a></li>
-                <li><a href="/budgetlist/Category">カテゴリ入力</a></li>
-                <li><a href="/budgetlist/Type">支払方法入力</a></li>
                 {% endif %}
         </nav>
     </header>

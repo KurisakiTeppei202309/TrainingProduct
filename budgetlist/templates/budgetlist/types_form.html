@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {%  block content %}
 <div class="content">
-	<h3>支払方法入力</h3>
+	<h2>受取・支払方法入力</h2>
 	<div class="form">
 		<form action="{% url 'budgetlist:types_create' %}" method='POST'> 
 			{% csrf_token %}

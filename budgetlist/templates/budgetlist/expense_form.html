@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {%  block content %}
 <div class="content">
-	<h2>収支入力</h2>
+	<h2>支払場所入力</h2>
 	<div class="form">
-		<form action="{% url 'budgetlist:transactions_create' %}" method='POST'> 
+		<form action="{% url 'budgetlist:expense_create' %}" method='POST'> 
 			{% csrf_token %}
 			{% for field in form %}
 			<div>
@@ -19,5 +19,5 @@
 			<input type="submit" value="登録" />
 		</form>
 	</div>
-
+</div>
 {% endblock %}

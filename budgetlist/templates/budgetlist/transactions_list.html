@@ -8,6 +8,7 @@
         <td>金額</td>
         <td>カテゴリ</td>
         <td>支払方法</td>
+        <td>支払場所</td>
         <td>備考</td>
     </tr>
     {% for transaction in transactions_list %} 
@@ -16,9 +17,15 @@
         <td>{{ transaction.amount}}</td>
         <td>{{ transaction.category}}</td>
         <td>{{ transaction.types}}</td>
+        <td>
+            {% if transaction.expense %}
+                {{ transaction.expense }}
+            {% endif %}
+        </td>       
         <td>{{ transaction.note}}</td>
     </tr>
     {% endfor %}
-<li><a href="/budgetlist/Transactions_Categorylist/">カテゴリ別一覧</a></li>
+<li><a href="/budgetlist/Transactions_Categorylist/">カテゴリ別一覧</a></li>   
+<li><a href="/budgetlist/Transactions_Expenselist/">支払場所別一覧</a></li>
    
 {% endblock %}
